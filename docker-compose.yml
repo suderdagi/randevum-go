@@ -1,0 +1,22 @@
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: randevum
+      POSTGRES_PASSWORD: randevum
+      POSTGRES_DB: randevum
+    ports: ["5432:5432"]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U randevum"]
+      interval: 2s
+      retries: 15
+
+  api:
+    build: .
+    environment:
+      DATABASE_URL: postgres://randevum:randevum@db:5432/randevum?sslmode=disable
+      JWT_SECRET: change-me-to-a-long-random-string-in-production
+    ports: ["4000:4000"]
+    depends_on:
+      db:
+        condition: service_healthy
